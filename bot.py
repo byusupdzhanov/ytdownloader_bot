@@ -1,12 +1,11 @@
 import telebot
-import yt_dlp
+from pytube import YouTube
 import os
 from telebot import types
 from config import bot_settings, img_src
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
-import pytiktok
-import requests
+
 
 bot = telebot.TeleBot(token=bot_settings['token'])
 
@@ -122,13 +121,10 @@ def download_format_handler(message, url):
     keyboard.add(btn)
     if format_choice == 'видео':
         bot.send_message(message.chat.id, 'Идет скачивание видео, ожидайте...')
-        ydl_opts = {
-            'format': 'bestvideo[ext=mp4]+bestaudio/best',
-            'outtmpl': '%(title)s.%(ext)s'
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info_dict)
+        youtube = YouTube(url)
+        video = youtube.streams.filter(progressive=True, file_extension='mp4').order_by('resolution').desc().first()
+        filename = f'{video.default_filename}'
+        video.download(output_path=os.getcwd(), filename=filename)
         with open(filename, 'rb') as f:
             bot.send_video(message.chat.id, f, caption='Скачано при помощи @getsdownload_bot ✅',
                            reply_markup=keyboard)
@@ -136,13 +132,10 @@ def download_format_handler(message, url):
         os.remove(filename)
     elif format_choice == 'аудио':
         bot.send_message(message.chat.id, 'Идет скачивание аудио, ожидайте...')
-        ydl_opts = {
-            'format': 'bestaudio[ext=m4a]/best',
-            'outtmpl': '%(title)s.%(ext)s'
-        }
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info_dict = ydl.extract_info(url, download=True)
-            filename = ydl.prepare_filename(info_dict)
+        youtube = YouTube(url)
+        audio = youtube.streams.filter(only_audio=True).first()
+        filename = f'{audio.default_filename}'
+        audio.download(output_path=os.getcwd(), filename=filename)
         with open(filename, 'rb') as f:
             bot.send_audio(message.chat.id, f, caption='Скачано при помощи @getsdownload_bot ✅',
                            reply_markup=keyboard)
@@ -155,6 +148,7 @@ def download_format_handler(message, url):
     else:
         bot.send_message(message.chat.id, 'Выберите формат загрузки:', reply_markup=media_download_buttons())
         bot.register_next_step_handler(message, download_format_handler, url)
+
 
 '''
 def download_tt(message, video_url):
