@@ -11,11 +11,9 @@ import requests
 bot = telebot.TeleBot(token=bot_settings['token'])
 
 
-# список необходимых прав доступа к таблице
+#учет пользвателей в GSheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
-# путь к файлу с ключами авторизации (получается при создании ключа доступа в консоли Google API)
 creds = ServiceAccountCredentials.from_json_keyfile_name('googlesj.json', scope)
-# идентификатор таблицы
 sheet_id = '1x0zIOyz0jBol4kqyE4x36-x-L_vk7NRRD4pGbuwP_zY'
 client = gspread.authorize(creds)
 sheet = client.open_by_key(sheet_id).sheet1
