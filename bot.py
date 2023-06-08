@@ -10,7 +10,6 @@ import requests
 
 bot = telebot.TeleBot(token=bot_settings['token'])
 
-
 #учет пользвателей в GSheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name('googlesj.json', scope)
