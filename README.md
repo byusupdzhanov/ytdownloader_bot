@@ -15,3 +15,8 @@ Working only with Audio and Video (not longer than 3-4min)
 3) Playback on iOS and macOS is now convenient and comfortable
 4) Added the output of the video title in the description to the media content
 5) Added notification of 50 MB limit
+
+<b>Release 1.0.3</b><i> from 11.06.2023</i>
+<br>
+1) The bot works even faster
+2) Added the output of the rating, the author of the channel and the number of views
