@@ -20,3 +20,11 @@ Working only with Audio and Video (not longer than 3-4min)
 <br>
 1) The bot works even faster
 2) Added the output of the rating, the author of the channel and the number of views
+
+<b>Release 1.1.0</b><i> from 13.06.23</i>
+<br>
+1) Bot now works on <code>asyncio</code> and <code>aiohttp</code>
+2) Script structure has been completely redesigned
+3) Redesigned interaction with the bot and commands
+4) Full stability of operation is provided
+5) Code has been optimized and simplified for the convenience of working with it
