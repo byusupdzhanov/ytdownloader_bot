@@ -1,1 +1,6 @@
-
+pytelegrambotapi
+pytube
+gspread
+oauth2client
+moviepy
+re
