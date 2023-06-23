@@ -1,7 +1,7 @@
 bot_settings = {
-    'token': '6077264956:AAFsYAsEekCmoYUYBn_XultvUDWWbE_YR34',
-    'api_id': '26793093',
-    'api_hash': '4a18c365b31836b1dcff541ccb84e367',
+    'token': 'x',
+    'api_id': 'x',
+    'api_hash': 'x',
 }
 
 img_src = {
