@@ -9,3 +9,8 @@
 <b>What will be improved or changed?</b><br>
 1) Some text corrections<br>
 2) <code>/help</code> menu will be redecorated<br>
+<b>What was done?</b>
+1) Removed unused functions, imports etc.
+2) Cod has been optimized and working faster
+3) Added error handler (e.g. age restricted videos, which can only be viewed by logging in)
+4) Some text corrections
