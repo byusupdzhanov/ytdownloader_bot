@@ -28,3 +28,7 @@ Working only with Audio and Video (not longer than 3-4min)
 4) Full stability of operation is provided
 5) Code has been optimized and simplified for the convenience of working with it
 6) The so-called "fool test" has been added. When requesting a media link, <br>if the incoming message is not a link, the bot will give an error
+
+<b>Release 1.1.1_beta</b><i> from 22.06.23</i>
+<br>
+1) Added error handlers
