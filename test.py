@@ -7,7 +7,7 @@ import urllib.request
 from tiktok import getCookie, getDownloadUrl, getDownloadID, getStatus
 
 
-bot = AsyncTeleBot(token='6071992423:AAETXoZ8tjsnyrZbO0iXTKnxgyqgdjhRGOg')
+bot = AsyncTeleBot(token='xxx')
 
 
 class MyStates(StatesGroup):
