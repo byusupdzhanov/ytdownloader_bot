@@ -1,8 +1,8 @@
 bot_settings = {
-    'token': '6077264956:AAFsYAsEekCmoYUYBn_XultvUDWWbE_YR34',
-    'test_token': '6071992423:AAETXoZ8tjsnyrZbO0iXTKnxgyqgdjhRGOg',
-    'api_id': '26793093',
-    'api_hash': '4a18c365b31836b1dcff541ccb84e367',
+    'token': 'your_tg_token',
+    'test_token': 'xxxx',
+    'api_id': 'tg_app',
+    'api_hash': 'a',
 }
 
 img_src = {
