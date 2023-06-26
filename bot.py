@@ -14,7 +14,7 @@ from oauth2client.service_account import ServiceAccountCredentials
 from moviepy.editor import VideoFileClip
 import re
 
-bot = AsyncTeleBot(token=bot_settings['test_token'], state_storage=StateMemoryStorage())
+bot = AsyncTeleBot(token=bot_settings['token'], state_storage=StateMemoryStorage())
 
 # учет пользвателей в GSheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
