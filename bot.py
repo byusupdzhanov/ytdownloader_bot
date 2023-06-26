@@ -25,7 +25,6 @@ sheet = client.open_by_key(sheet_id).sheet1
 
 urls = {}
 
-
 class MyStates(StatesGroup):
     obtainingUrl = State()
     MediaFormatChoosing = State()
@@ -186,7 +185,6 @@ async def youtube_media_downloading(message):
             await bot.send_message(message.chat.id, f"Произошла непредвиденная ошибка:\n{str(e)}",
                                    reply_markup=backrepeat_keyboard())
         # os.remove(filename)
-
 
 bot.add_custom_filter(asyncio_filters.StateFilter(bot))
 bot.add_custom_filter(ProductsCallbackFilter())
