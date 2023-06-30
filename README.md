@@ -5,3 +5,5 @@ This is YouTube downloader Telegram Bot, working on Python!
 
 
 You can try this bot here: <a href="https://t.me/getsdownload_bot">bum<a/>
+
+<b>Important!!!</b> Currently bot have only RU language
