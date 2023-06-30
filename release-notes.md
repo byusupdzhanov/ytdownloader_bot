@@ -4,6 +4,7 @@
 <b>What will be added?</b>
 <br>
 1) Quality choosing button (filesize still under 50 MB)<br>
+2) Downloading YouTube Playlists function
 <br>
 <b>What will be improved or changed?</b><br>
 1) Bot logic<br>
