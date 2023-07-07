@@ -15,3 +15,6 @@
 3) Added error handler (e.g. age restricted videos, which can only be viewed by logging in)
 4) Some text corrections
 5) All possible error handlers (so user won't see: <code>'NoneType' object has no attribute 'default_filename'</code>
+<br>
+
+<h2>Release 1.2.0<i> date: ~25.06.23</i></h2>
