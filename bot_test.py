@@ -14,24 +14,26 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from moviepy.editor import VideoFileClip
 import re
+import requests
+import youtube_dl
+
 
 bot = AsyncTeleBot(token=bot_settings['test_token'], state_storage=StateMemoryStorage())
+
 
 # учет пользвателей в GSheets
 scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 creds = ServiceAccountCredentials.from_json_keyfile_name(
-    '/Users/bogdanyusupdjanov/Projects/tg-bot-downloader/test-space/googlesj.json', scope)
+    'googlesj.json', scope)
 sheet_id = '1x0zIOyz0jBol4kqyE4x36-x-L_vk7NRRD4pGbuwP_zY'
 client = gspread.authorize(creds)
 sheet = client.open_by_key(sheet_id).sheet1
 
 urls = {}
-quality = {}
-videotype = {}
-
+params = []
+users_params = {}
 
 admins = [169546656, 4444]
-
 
 class MyStates(StatesGroup):
     obtainingUrl = State()
@@ -39,8 +41,8 @@ class MyStates(StatesGroup):
     downloadHandler = State()
     mainMenu = State()
     playlistDownloader = State()
-    qualityHandler = State()
-    additionalHandler = State()
+    vkDownloading = State()
+    vkQualityHandler = State()
 
 
 class ProductsCallbackFilter(AdvancedCustomFilter):
@@ -65,36 +67,6 @@ def backrepeat_keyboard():
                                           ]
                                       ]
                                       )
-
-
-def quality_keyboard():
-    return types.InlineKeyboardMarkup(row_width=2,
-                                      keyboard=[
-                                          [
-                                              types.InlineKeyboardButton(
-                                                  text='720p',
-                                                  callback_data='720'
-                                              ),
-                                              types.InlineKeyboardButton(
-                                                  text='480p',
-                                                  callback_data='480'
-                                              ),
-                                              types.InlineKeyboardButton(
-                                                  text='360p',
-                                                  callback_data='360'
-                                              ),
-                                              types.InlineKeyboardButton(
-                                                  text='240p',
-                                                  callback_data='240'
-                                              ),
-                                              types.InlineKeyboardButton(
-                                                  text='144p',
-                                                  callback_data='144'
-                                              ),
-                                          ]
-                                      ]
-                                      )
-
 
 def admin_keyboard():
     return types.InlineKeyboardMarkup(row_width=2,
@@ -135,8 +107,109 @@ async def admin_panel(message):
 
 
 @bot.message_handler(commands=['vk'])
-async def vk_first_msg(message):
-    await bot.send_photo(message.chat.id, photo=img_src['uc_photo'], caption=texts['notready'], parse_mode='html')
+async def handle_vk_command(message):
+    await bot.send_message(message.chat.id, text=texts['vk_start_test'], parse_mode='html')
+    await bot.set_state(message.from_user.id, MyStates.vkQualityHandler, message.chat.id)
+
+
+@bot.message_handler(state=MyStates.vkQualityHandler)
+async def process_vk_link(message):
+    link = message.text
+    chat_id = message.chat.id
+    params.append(link)
+    # Здесь вы можете добавить проверку введенной ссылки и обработку ошибок, если необходимо
+
+    # Создание объекта клавиатуры
+    keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    # Добавление кнопок
+    button_480 = types.KeyboardButton('480')
+    button_360 = types.KeyboardButton('360')
+    button_720 = types.KeyboardButton('720')
+    keyboard.add(button_480, button_360, button_720)
+
+    await bot.send_message(chat_id, 'На данный момент возможна загрузка только видео\n\n'
+                                    'Зато вы можете выбрать качество:', reply_markup=keyboard)
+    await bot.set_state(message.from_user.id, MyStates.vkDownloading, message.chat.id)
+
+
+@bot.message_handler(state=MyStates.vkDownloading)
+async def process_vk_video(message):
+    try:
+        async def downloadsend(video_url, message, token, owner_id, quality):
+            await bot.send_message(chat_id=message.chat.id, text='Ожидайте скачивание видео')
+            video_get_url = f"https://api.vk.com/method/video.get?owner_id={owner_id}&videos={video_url}" \
+                            f"&access_token={token}&v=5.81"
+            req = requests.get(video_get_url).json()
+            response = req["response"]
+            items = response['items'][0]
+            if 'content_restricted_message' in items:
+                await bot.send_message(chat_id=message.chat.id, text='Видео недоступно изза приватности ')
+                return handle_vk_command(message)
+            duration = items['duration']
+
+            widthvideo = items['width']
+            heightvideo = items['height']
+            url = items['player']
+            ydl_opts = {
+                'format': 'best[ext=mp4]/best',
+                'outtmpl': f'%(title)s_{video_url}.%(ext)s',
+                'self_contained': True
+            }
+
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                info_dict = ydl.extract_info(url, download=True)
+                video_filename = ydl.prepare_filename(info_dict)
+                video_file_size = os.path.getsize(video_filename)
+                video = VideoFileClip(video_filename)
+                video_resized = video.resize(height=quality)
+                # Изменение разрешения до 720p
+                max_video_size = 50 * 1024 * 1024  # 50 МБ (максимальный размер видео в Telegram)
+                video_resized.write_videofile('resized_video.mp4', codec='libx264')
+                video_file_size = os.path.getsize('resized_video.mp4')
+                os.remove(video_filename)
+                if video_file_size < max_video_size:
+                    with open('resized_video.mp4', 'rb') as video_file:
+                        await bot.send_video(chat_id=message.chat.id,
+                                       video=video_file,
+                                       caption='Скачано при помощи \n@getsdownload_bot',
+                                       duration=int(duration),
+                                       supports_streaming=True,
+                                       width=int(widthvideo),
+                                       height=int(heightvideo))
+                    params.clear()
+                    os.remove('resized_video.mp4')
+                else:
+                    await bot.send_message(message.chat.id, 'К сожалению, '
+                                                            'я не могу скачивать видео больше видео больше <b>50 Мб</b>\n'
+                                                            '\n'
+                                                            'Вы можете понизить качество, для скачивания',
+                                           parse_mode='html')
+                    await handle_vk_command(message)
+
+        quality = int(message.text)
+        video_url = params[0]
+        token = bot_settings['vk_token']
+        owner_id = bot_settings['vk_owner_id']
+
+        if 'https://vk.com/video-' in video_url:
+            video_url = video_url[20:]
+        elif 'https://vk.com/video' in video_url and '-' not in video_url:
+            video_url = video_url[20:]
+        elif 'https://vk.com/clip-' in video_url:
+            video_url = video_url[19:]
+        elif 'https://vk.com/clip' in video_url and '-' not in video_url:
+            video_url = video_url[19:]
+        else:
+            await bot.send_message(message.chat.id, "Это не ссылка на видео VK.")
+            return handle_vk_command(message)
+
+        if '?' in video_url:
+            video_url = video_url.split('?')[0]
+
+        await downloadsend(video_url, message, token, owner_id, quality)
+    except Exception as e:
+        await bot.send_message(message.chat.id, f'Произошла непредвиденная ошибка: {str(e)}')
+        await bot.send_message(chat_id='-1001879360469', text=str(e))
 
 
 @bot.message_handler(commands=['tiktok'])
@@ -176,29 +249,17 @@ async def obtaining_url(message):
         await bot.send_message(message.chat.id, 'Сообщение не является ссылкой! Отправьте ссылку')
         await bot.set_state(message.from_user.id, MyStates.obtainingUrl, message.chat.id)
 
-@bot.message_handler(state=MyStates.qualityHandler)
-async def quality_handler(message):
-    text = message.text
-    if text == 'Видео👾':
-        videotype[message.chat.id] = {'type': 'video'}
-        await bot.send_message(message.chat.id, 'Выбери качество загружаемого видео:', reply_markup=quality_keyboard())
-    elif text == 'Аудио🎵':
-        videotype[message.chat.id] = {'type': 'audio'}
-        await bot.set_state(message.from_user.id, MyStates.downloadHandler)
-
 
 @bot.message_handler(state=MyStates.downloadHandler)
 async def youtube_media_downloading(message):
+    text = message.text
     url = urls[message.chat.id]['youtube']
-    media_type = videotype[message.chat.id]['type']
-    async with bot.retrieve_data(message.from_user.id) as data:
-        res = data['quality']
-    if media_type == 'video':
+    if text == 'Видео👾':
         await bot.send_message(message.chat.id, 'Идет скачивание, ожидайте')
         youtube = YouTube(url)
         try:
             video = youtube.streams.filter(progressive=True, file_extension='mp4',
-                                           res=res).get_highest_resolution()
+                                           res='720p').get_highest_resolution()
             filename = f'{video.default_filename}'
             video.download(output_path=os.getcwd(), filename=filename)
             video_clip = VideoFileClip(filename)
@@ -208,7 +269,6 @@ async def youtube_media_downloading(message):
             file_size = os.path.getsize(filename) / (1024 * 1024)  # Размер файла в МБ
             video_title = youtube.title
             views = youtube.views
-            rating = youtube.rating
             author = youtube.author
             max_caption_length = 300
             formatted_views = "{:,}".format(views).replace(",", " ")
@@ -221,12 +281,17 @@ async def youtube_media_downloading(message):
                     await bot.send_video(message.chat.id, f,
                                          caption=f'<b>{video_title}</b>'
                                                  f'\n\n'
-                                                 f'Просмотры👀: {formatted_views} | Рейтинг📈: {rating} | '
+                                                 f'Просмотры👀: {formatted_views} | '
                                                  f'Канал✍️: {author}'
                                                  f'\n\n'
                                                  f'Скачано при помощи @getsdownload_bot ✅',
                                          width=width, height=height, parse_mode='html',
                                          reply_markup=backrepeat_keyboard())
+
+                    # Delete the 'Идет скачивание, ожидайте' message
+                    await bot.delete_message(message.chat.id, message.message_id)
+
+                    # Delete the 'Идет отправка ожидайте' message
             else:
                 await bot.send_message(message.chat.id, text=texts['limitation_text'],
                                        parse_mode='html', reply_markup=backrepeat_keyboard())
@@ -240,10 +305,12 @@ async def youtube_media_downloading(message):
             elif 'object has no attribute' in str(e):
                 await bot.send_message(message.chat.id, text=texts['error'],
                                        reply_markup=backrepeat_keyboard(), parse_mode='html')
+                await bot.send_message(chat_id='-1001879360469', text=str(e))
             else:
                 await bot.send_message(message.chat.id, f'Непредвиденная ошибка: {str(e)}',
                                        reply_markup=backrepeat_keyboard())
-    elif media_type == 'audio':
+                await bot.send_message(chat_id='-1001879360469', text=str(e))
+    elif text == 'Аудио🎵':
         await bot.send_message(message.chat.id, 'Идет скачивание, ожидайте!')
         youtube = YouTube(url)
 
@@ -258,6 +325,7 @@ async def youtube_media_downloading(message):
         except Exception as e:
             await bot.send_message(message.chat.id, f"Произошла непредвиденная ошибка:\n{str(e)}",
                                    reply_markup=backrepeat_keyboard())
+            await bot.send_message(chat_id='-1001879360469', text=str(e))
         # os.remove(filename)
 
 
@@ -303,44 +371,7 @@ async def users_counter(call: types.CallbackQuery):
     for i in user_ids:
         await bot.send_message(call.from_user.id, f'{i}',)
 
-@bot.callback_query_handler(func=lambda c: c.data == '720')
-async def quality_720(call: types.CallbackQuery):
-    await bot.send_message(call.from_user.id, 'Отлично, скачаем видео в качестве: <b>720p</b>', parse_mode='html')
-    await bot.set_state(call.from_user.id, MyStates.downloadHandler)
-    async with bot.retrieve_data(call.from_user.id) as data:
-        data['quality'] = '720p'
-
-@bot.callback_query_handler(func=lambda c: c.data == '480')
-async def quality_480(call: types.CallbackQuery):
-    await bot.send_message(call.from_user.id, 'Отлично, скачаем видео в качестве: <b>480p</b>', parse_mode='html')
-    await bot.set_state(call.from_user.id, MyStates.downloadHandler)
-    async with bot.retrieve_data(call.from_user.id) as data:
-        data['quality'] = '480p'
-
-@bot.callback_query_handler(func=lambda c: c.data == '360')
-async def quality_360(call: types.CallbackQuery):
-    await bot.send_message(call.from_user.id, 'Отлично, скачаем видео в качестве: <b>360p</b>', parse_mode='html')
-    await bot.set_state(call.from_user.id, MyStates.downloadHandler)
-    async with bot.retrieve_data(call.from_user.id) as data:
-        data['quality'] = '360p'
-
-@bot.callback_query_handler(func=lambda c: c.data == '240')
-async def quality_240(call: types.CallbackQuery):
-    await bot.send_message(call.from_user.id, 'Отлично, скачаем видео в качестве: <b>240p</b>', parse_mode='html')
-    await bot.set_state(call.from_user.id, MyStates.downloadHandler)
-    async with bot.retrieve_data(call.from_user.id) as data:
-        data['quality'] = '240p'
-
-@bot.callback_query_handler(func=lambda c: c.data == '144')
-async def quality_144(call: types.CallbackQuery):
-    await bot.send_message(call.from_user.id, 'Отлично, скачаем видео в качестве: <b>144p</b>', parse_mode='html')
-    await bot.set_state(call.from_user.id, MyStates.downloadHandler)
-    async with bot.retrieve_data(call.from_user.id) as data:
-        data['quality'] = '144p'
-
-
-
 bot.add_custom_filter(asyncio_filters.StateFilter(bot))
 bot.add_custom_filter(ProductsCallbackFilter())
 
-asyncio.run(bot.polling(none_stop=True))
+asyncio.run(bot.polling(non_stop=True))
