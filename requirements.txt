@@ -8,3 +8,5 @@ os
 subprocess
 asyncio
 aiohttp
+pillow==9.5.0
+youtube-dl
