@@ -10,7 +10,7 @@ import re
 import subprocess
 from moviepy.editor import *
 
-bot_token = '5990163436:AAGXxv5Cw2m2QYKtdL1JgdBNUCfxkcj4mxE'
+bot_token = 'your bot token'
 bot = telebot.TeleBot(bot_token)
 
 params = []
