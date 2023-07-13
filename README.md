@@ -12,3 +12,6 @@ You can try this bot here: <a href="https://t.me/getsdownload_bot">bum<a/>
 <code>/youtube</code> - command to work with YouTube Media<br>
 <code>/vk</code> - command to download VK Clips & Videos<br>
 <code>/help</code> - if you struggled and need help
+
+## Have questions? Want to collaborate?
+In this turn, you can write me here: <a href='https://t.me/dontbesoseriouspls'>Telegram</a>, <a href='https://vk.com/8ro_t2'>VK</a>, Discord: get_sucked
