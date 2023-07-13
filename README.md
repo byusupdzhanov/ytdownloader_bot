@@ -15,3 +15,4 @@ You can try this bot here: <a href="https://t.me/getsdownload_bot">bum<a/>
 
 ## Have questions? Want to collaborate?
 In this turn, you can write me here: <a href='https://t.me/dontbesoseriouspls'>Telegram</a>, <a href='https://vk.com/8ro_t2'>VK</a>, Discord: get_sucked
+
