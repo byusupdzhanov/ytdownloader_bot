@@ -4,9 +4,10 @@
 <b>What will be added?</b>
 <br>
 1) Quality choosing button for YouTube<br>
-2) Downloading YouTube Playlists function
-3) Function to search YouTube videos in telegram without going to YouTube
-4) Downloading Instagram Reels
+2) Downloading YouTube Playlists function<br>
+3) Function to search YouTube videos in telegram without going to YouTube<br>
+4) Downloading Instagram Reels<br>
+5) Bypassing the age limit on videos that required logging in to an account
 <br>
 <b>What will be improved or changed?</b><br>
 1) VK downloading will be working without any errors<br>
