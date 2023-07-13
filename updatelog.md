@@ -37,3 +37,10 @@ Working only with Audio and Video (not longer than 3-4min)
 4) Some text corrections<br>
 5) Fixed <code>pytube</code> error: <code>get_throttling_function_name: could not find match for multiple</code><br>
 6) Fixed bug with recursion after pressing "Главное меню" button
+
+<b>Release 1.1.2</b><i> from 12.07.23</i>
+<br>
+1) Fixed error with default_filename <br>
+2) Added downloading from VK Videos and VK Clips<br>
+3) Quality choosing step for VK<br>
+
