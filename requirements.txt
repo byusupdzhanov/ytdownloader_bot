@@ -10,3 +10,6 @@ asyncio
 aiohttp
 pillow==9.5.0
 youtube-dl
+scrapetube
+TikTokApi
+sqlite3
