@@ -44,3 +44,9 @@ Working only with Audio and Video (not longer than 3-4min)
 2) Added downloading from VK Videos and VK Clips<br>
 3) Quality choosing step for VK<br>
 
+<b>Release 1.1.3</b><i> from 22.07.23</i>
+<br>
+1) Added functionality to search YouTube videos in Telegram
+2) Text corrections
+3) Fixed <code>get_transform_object: could not find match for var for={(.*?)};</code> error
+   
