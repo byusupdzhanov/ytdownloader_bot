@@ -19,7 +19,7 @@ import youtube_dl
 import scrapetube
 import sqlite3
 
-bot = AsyncTeleBot(token=bot_settings['token'], state_storage=StateMemoryStorage())
+bot = AsyncTeleBot(token=bot_settings['test_token'], state_storage=StateMemoryStorage())
 
 conn = sqlite3.connect('bot_data.db')
 c = conn.cursor()
@@ -71,7 +71,6 @@ def backrepeat_keyboard():
                                           ]
                                       ]
                                       )
-
 @bot.message_handler(commands=['start'])
 async def start_message(message):
     chat_id = message.chat.id
@@ -91,7 +90,11 @@ async def process_vk_link(message):
     link = message.text
     chat_id = message.chat.id
     params.append(link)
+    # Здесь вы можете добавить проверку введенной ссылки и обработку ошибок, если необходимо
+
+    # Создание объекта клавиатуры
     keyboard = types.ReplyKeyboardMarkup(resize_keyboard=True, one_time_keyboard=True)
+    # Добавление кнопок
     button_480 = types.KeyboardButton('480')
     button_360 = types.KeyboardButton('360')
     button_720 = types.KeyboardButton('720')
@@ -132,7 +135,8 @@ async def process_vk_video(message):
                 video_file_size = os.path.getsize(video_filename)
                 video = VideoFileClip(video_filename)
                 video_resized = video.resize(height=quality)
-                max_video_size = 50 * 1024 * 1024  
+                # Изменение разрешения до 720p
+                max_video_size = 50 * 1024 * 1024  # 50 МБ (максимальный размер видео в Telegram)
                 video_resized.write_videofile('resized_video.mp4', codec='libx264')
                 video_file_size = os.path.getsize('resized_video.mp4')
                 os.remove(video_filename)
@@ -234,7 +238,6 @@ async def youtube_media_downloading(message):
 
             file_size = os.path.getsize(filename) / (1024 * 1024)  # Размер файла в МБ
             video_title = youtube.title
-            views = youtube.views
             max_caption_length = 300
 
             if len(video_title) > max_caption_length:
@@ -297,6 +300,7 @@ async def by_name(message):
 
 
 @bot.message_handler(state=MyStates.ScrappingByName)
+@bot.message_handler(state=MyStates.ScrappingByName)
 async def scrappin_by_name(message):
     nametag = message.text
     videos = scrapetube.get_search(nametag, limit=5)
@@ -304,6 +308,7 @@ async def scrappin_by_name(message):
         await bot.send_message(message.chat.id, 'Вот 5 результатов👇\n'
                                                 'Выбери подходящее, по названию, видео и скачивай🙂')
 
+        # Удаляем старые результаты для данного пользователя
         c.execute("DELETE FROM video_data WHERE user_id = ?", (message.from_user.id,))
         conn.commit()
 
@@ -312,22 +317,23 @@ async def scrappin_by_name(message):
             yt = YouTube(link)
             title = yt.title
 
+            # Вставляем данные в таблицу
             c.execute("INSERT INTO video_data VALUES (?, ?, ?)",
                       (message.from_user.id, title, link))
 
+        # Коммитим изменения в базе данных
         conn.commit()
 
-        c.execute("SELECT rowid, title FROM video_data WHERE user_id = ?",
-                  (message.from_user.id,))
-        titles = [f'{row[0]}. {row[1]}' for row in c.fetchall()]
-
-        message_text = '\n'.join(titles)
-
+        # Извлекаем данные из базы данных, формируем текст сообщения и создаем кнопки
+        message_text = ''
         keyboard = types.InlineKeyboardMarkup(row_width=2)
+        c.execute("SELECT rowid, title FROM video_data WHERE user_id = ?", (message.from_user.id,))
 
-        for i in range(1, len(titles) + 1):
+        for i, row in enumerate(c.fetchall(), start=1):
+            message_text += f'{row[0]}. {row[1]}\n'
             callback_data = f'download_{i}'
             keyboard.add(types.InlineKeyboardButton(f'Скачать {i}', callback_data=callback_data))
+
         await bot.send_message(message.chat.id, text=message_text, reply_markup=keyboard, disable_web_page_preview=True)
     except Exception as e:
         await bot.send_message(message.chat.id, f'Произошла непредвиденная ошибка: {str(e)}')
@@ -338,6 +344,7 @@ async def callback_handler(call):
     if call.data.startswith('download_'):
         video_index = int(call.data.split('_')[1])
 
+        # Получаем ссылку и название видео из базы данных
         c.execute("SELECT title, link FROM video_data WHERE user_id = ? AND rowid = ?",
                   (call.from_user.id, video_index))
         video_title, link = c.fetchone()
@@ -373,6 +380,7 @@ async def callback_handler(call):
                 await bot.send_message(call.from_user.id, text=texts['limitation_text'],
                                        parse_mode='html', reply_markup=backrepeat_keyboard())
 
+            # Удаляем данные из базы данных после скачивания видео
             c.execute("DELETE FROM video_data WHERE user_id = ? AND rowid = ?",
                       (call.from_user.id, video_index))
             conn.commit()
