@@ -300,7 +300,6 @@ async def by_name(message):
 
 
 @bot.message_handler(state=MyStates.ScrappingByName)
-@bot.message_handler(state=MyStates.ScrappingByName)
 async def scrappin_by_name(message):
     nametag = message.text
     videos = scrapetube.get_search(nametag, limit=5)
