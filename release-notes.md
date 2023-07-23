@@ -1,15 +1,18 @@
-# Release notes 
+# Release notes for future
 
-<h2>Release 1.1.3</h2><i> date: 15-20.07.23</i><br><br>
+<h2>Release 1.1.4</h2><i> date: ~30.07.23</i><br><br>
 <b>What will be added?</b>
 <br>
-1) Function to search YouTube videos in telegram without going to YouTube<br>
+1) Func to download YT Playlist with buttons pagination<br>
+2) Instagram Reels downloading <br>
+3) TikTok videos downloading(50/50) <br>
+4) We will increase the limit on the size of the file being sent
 <br>
 <b>What will be improved or changed?</b><br>
-1) VK downloading will be working without any errors<br>
-2) <code>/help</code> menu will be redecorated<br>
+1) VK function fix<br>
+2) <br>
 <b>What was done?</b><br>
-1) Fixed <code>get_transform_object: could not find match for var for={(.*?)};</code> error
+1) <i>Null</i>
 <br>
 
 
