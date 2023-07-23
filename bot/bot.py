@@ -72,9 +72,6 @@ def backrepeat_keyboard():
                                       ]
                                       )
 
-
-@bot.message_handler(commands=[''])
-
 @bot.message_handler(commands=['start'])
 async def start_message(message):
     chat_id = message.chat.id
