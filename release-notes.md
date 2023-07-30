@@ -4,9 +4,8 @@
 <b>What will be added?</b>
 <br>
 1) Func to download YT Playlist with buttons pagination<br>
-2) Instagram Reels downloading <br>
-3) TikTok videos downloading(50/50) <br>
-4) We will increase the limit on the size of the file being sent
+2) TikTok videos downloading(50/50) <br>
+3) We will increase the limit on the size of the file being sent
 <br>
 <b>What will be improved or changed?</b><br>
 1) VK function fix<br>
