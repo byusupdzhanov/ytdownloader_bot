@@ -1,6 +1,6 @@
 # Release notes for future
 
-<h2>Release 1.1.4</h2><i> date: ~30.07.23</i><br><br>
+<h2>Release 2.0.0</h2><i> date: ~30.07.23</i><br><br>
 <b>What will be added?</b>
 <br>
 1) Func to download YT Playlist with buttons pagination<br>
