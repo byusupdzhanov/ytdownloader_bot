@@ -105,6 +105,11 @@ async def process_vk_link(message):
     await bot.set_state(message.from_user.id, MyStates.vkDownloading, message.chat.id)
 
 
+
+
+
+
+
 @bot.message_handler(state=MyStates.vkDownloading)
 async def process_vk_video(message):
     try:
