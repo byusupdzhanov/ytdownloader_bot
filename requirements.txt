@@ -8,7 +8,7 @@ os
 subprocess
 asyncio
 aiohttp
-pillow==9.5.0
+pillow==10.0.1
 youtube-dl
 scrapetube
 TikTokApi
